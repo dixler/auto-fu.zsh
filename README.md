@@ -8,12 +8,12 @@ follow the old instructions and it should work
 I recommend adding: 
 function zle-line-init () {
     auto-fu-init
-    zle reset-prompt    #<<<This line so that you don't have to worry about double
-                        #   printing the prompt
+    zle reset-prompt    <----This line so that you don't have to worry about double
+                             printing the prompt
     zle-smkx
 }
 
-#insert old readme here
+insert old readme here
 zsh automatic complete-word and list-choices
 
 Originally incr-0.2.zsh
