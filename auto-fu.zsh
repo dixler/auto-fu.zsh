@@ -166,14 +166,13 @@ with-afu-completer-vars () {
 #CRITICAL
 auto-fu () {
     zle reset-prompt
-  cursor_cur="$CURSOR"
-  buffer_cur="$BUFFER"
-  with-afu-completer-vars zle complete-word
-  cursor_new="$CURSOR"
-  buffer_new="$BUFFER"
+    cursor_cur="$CURSOR"
+    buffer_cur="$BUFFER"
+    with-afu-completer-vars zle complete-word
+    cursor_new="$CURSOR"
+    buffer_new="$BUFFER"
 
-  if [[ "$buffer_cur[1,cursor_cur]" == "$buffer_new[1,cursor_cur]" ]];
-  then
+    if [[ "$buffer_cur[1,cursor_cur]" == "$buffer_new[1,cursor_cur]" ]]; then
     CURSOR="$cursor_cur"
     {
       local hi hiv

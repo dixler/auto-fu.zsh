@@ -1,5 +1,11 @@
-make man autocompletion suck as much/conflict
 spend hours fixing things that I notice are:
     1) broken as hell
     2) inconvenient
     3) possibly license it so that the breakage isn't severe enough to get me sued for someone "rm -rf /"-ing
+
+make man autocompletion suck as much/conflict
+make listing not take up the entire screen because it's annoying
+maybe get that underline autocompletion going on
+mod grml so that the auto completion doesn't always happen because it's inconsistent
+make autocompletion stop fucking with people that don't actually want to auto complete
+mv file.local file.loc is practically impossible
