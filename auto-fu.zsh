@@ -32,12 +32,12 @@ afu-install () {
 
   bindkey -N afu emacs
   { "$@" }
-  bindkey -M afu "^I" 
-  bindkey -M afu "^M" afu+accept-line
-  bindkey -M afu "^J" afu+accept-line
-  bindkey -M afu "^O" afu+accept-line-and-down-history
-  bindkey -M afu "^[a" afu+accept-and-hold
-  bindkey -M afu "^X^[" afu+vi-cmd-mode
+  bindkey -M afu "^I" expand-or-complete
+  bindkey -M afu "^M" accept-line
+  bindkey -M afu "^J" accept-line
+  bindkey -M afu "^O" accept-line-and-down-history
+  bindkey -M afu "^[a" accept-and-hold
+  bindkey -M afu "^X^[" vi-cmd-mode
 
   bindkey -N afu-vicmd vicmd
 }
@@ -66,9 +66,9 @@ EOT
   eval "${${code//\$afufun/$afufun}//\$rawzle/$rawzle}"
   afu_accept_lines+=$afufun
 }
-afu-register-zle-accept-line afu+accept-line
-afu-register-zle-accept-line afu+accept-line-and-down-history
-afu-register-zle-accept-line afu+accept-and-hold
+afu-register-zle-accept-line accept-line
+afu-register-zle-accept-line accept-line-and-down-history
+afu-register-zle-accept-line accept-and-hold
 
 # Entry point.
 auto-fu-init () {
@@ -139,7 +139,7 @@ afu-register-zle-afu () {
 afu-initialize-zle-afu () {
   local z
   for z in $afu_zles ;do
-    afu-register-zle-afu afu+$z
+    afu-register-zle-afu $z
   done
 }
 afu-initialize-zle-afu
@@ -165,6 +165,7 @@ with-afu-completer-vars () {
 
 #CRITICAL
 auto-fu () {
+    zle reset-prompt
   cursor_cur="$CURSOR"
   buffer_cur="$BUFFER"
   with-afu-completer-vars zle complete-word
@@ -210,3 +211,4 @@ afu-comppost () {
   typeset -g afu_one_match_p=
   (( $compstate[nmatches] == 1 )) && afu_one_match_p=t
 }
+

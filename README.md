@@ -1,6 +1,19 @@
 <img src="https://github.com/hchbaw/auto-fu.zsh/raw/readme/auto-fu.gif" />
 
 <pre>
+I wanted to use grml's completion with this program so I stripped it down a lot.
+
+follow the old instructions and it should work
+
+I recommend adding: 
+function zle-line-init () {
+    auto-fu-init
+    zle reset-prompt    #<<<This line so that you don't have to worry about double
+                        #   printing the prompt
+    zle-smkx
+}
+
+#insert old readme here
 zsh automatic complete-word and list-choices
 
 Originally incr-0.2.zsh
