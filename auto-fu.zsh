@@ -1,9 +1,13 @@
 # Code
 
 #CRITICAL
+#afu_zles=( \
+  #self-insert backward-delete-char backward-kill-word kill-line \
+  #kill-whole-line kill-word magic-space yank \
+#)
 afu_zles=( \
   self-insert backward-delete-char backward-kill-word kill-line \
-  kill-whole-line kill-word magic-space yank \
+  kill-whole-line kill-word yank \
 )
 #CRITICAL
 autoload +X keymap+widget
@@ -32,13 +36,20 @@ afu-install () {
 
   bindkey -N afu emacs
   { "$@" }
+  #bindkey -M afu "^I" expand-or-complete
+  #bindkey -M afu "^M" accept-line
+  #bindkey -M afu "^J" accept-line
+  #bindkey -M afu "^O" accept-line-and-down-history
+  #bindkey -M afu "^[a" accept-and-hold
+  #bindkey -M afu "^X^[" vi-cmd-mode
+  #bindkey -N afu-vicmd vicmd
+
   bindkey -M afu "^I" expand-or-complete
-  bindkey -M afu "^M" accept-line
-  bindkey -M afu "^J" accept-line
-  bindkey -M afu "^O" accept-line-and-down-history
+  bindkey -M afu "^M" afu+accept-line
+  bindkey -M afu "^J" afu+accept-line
+  bindkey -M afu "^O" delta+accept-line-and-down-history
   bindkey -M afu "^[a" accept-and-hold
   bindkey -M afu "^X^[" vi-cmd-mode
-
   bindkey -N afu-vicmd vicmd
 }
 
@@ -49,8 +60,10 @@ afu-install afu-keymap+widget
 afu-register-zle-accept-line () {
   local afufun="$1"
   local rawzle=".${afufun#*+}"
+  #REMOVE BUFFER_CUR LATER
   local code=${"$(<=(cat <<"EOT"
   $afufun () {
+    BUFFER="$buffer_cur"
     __accepted=($WIDGET ${=NUMERIC:+-n $NUMERIC} "$@")
     zle $rawzle && {
       local hi
@@ -66,7 +79,7 @@ EOT
   eval "${${code//\$afufun/$afufun}//\$rawzle/$rawzle}"
   afu_accept_lines+=$afufun
 }
-afu-register-zle-accept-line accept-line
+afu-register-zle-accept-line afu+accept-line
 afu-register-zle-accept-line accept-line-and-down-history
 afu-register-zle-accept-line accept-and-hold
 
@@ -151,19 +164,6 @@ auto-fu-maybe () {
 }
 
 #CRITICAL
-with-afu-compfuncs () {
-  comppostfuncs=(afu-comppost)
-  "$@"
-}
-
-#CRITICAL
-with-afu-completer-vars () {
-  setopt localoptions no_recexact
-  local LISTMAX=999999
-  with-afu-compfuncs "$@"
-}
-
-#CRITICAL
 auto-fu () {
     zle reset-prompt
     cursor_cur="$CURSOR"
@@ -198,7 +198,19 @@ auto-fu () {
     zle list-choices
   fi
 }
-zle -N auto-fu
+
+#CRITICAL
+with-afu-completer-vars () {
+  setopt localoptions no_recexact
+  local LISTMAX=999999
+  with-afu-compfuncs "$@"
+}
+
+#CRITICAL
+with-afu-compfuncs () {
+  comppostfuncs=(afu-comppost)
+  "$@"
+}
 
 #CRITICAL Makes it less annoying
 afu-comppost () {
@@ -210,4 +222,6 @@ afu-comppost () {
   typeset -g afu_one_match_p=
   (( $compstate[nmatches] == 1 )) && afu_one_match_p=t
 }
+
+zle -N auto-fu
 
