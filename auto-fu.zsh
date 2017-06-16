@@ -7,7 +7,7 @@
 #)
 afu_zles=( \
   self-insert backward-delete-char backward-kill-word kill-line \
-  kill-whole-line kill-word yank \
+  kill-whole-line kill-word magic-space yank \
 )
 #CRITICAL
 autoload +X keymap+widget
@@ -44,7 +44,7 @@ afu-install () {
   #bindkey -M afu "^X^[" vi-cmd-mode
   #bindkey -N afu-vicmd vicmd
 
-  bindkey -M afu "^I" expand-or-complete
+  bindkey -M afu "^I" afu+expand-or-complete
   bindkey -M afu "^M" afu+accept-line
   bindkey -M afu "^J" afu+accept-line
   bindkey -M afu "^O" delta+accept-line-and-down-history
@@ -63,12 +63,13 @@ afu-register-zle-accept-line () {
   #REMOVE BUFFER_CUR LATER
   local code=${"$(<=(cat <<"EOT"
   $afufun () {
-    BUFFER="$buffer_cur"
     __accepted=($WIDGET ${=NUMERIC:+-n $NUMERIC} "$@")
     zle $rawzle && {
       local hi
       zstyle -s ':auto-fu:highlight' input hi
-      [[ -z ${hi} ]] || region_highlight=("0 ${#BUFFER} ${hi}")
+        #BUFFER="$buffer_cur"
+      #[[ -z ${hi} ]] || region_highlight=("P0 ${#BUFFER} ${hi}")
+      #[[ -z ${hi} ]] || region_highlight=("P0 ${#BUFFER} bold")
     }
     zstyle -T ':auto-fu:var' postdisplay/clearp && POSTDISPLAY=''
     return 0
@@ -78,13 +79,33 @@ EOT
   ))"}
   eval "${${code//\$afufun/$afufun}//\$rawzle/$rawzle}"
   afu_accept_lines+=$afufun
+    BUFFER=''
+}
+
+#irrelevant solely for printing lines
+afu-register-zle-expand-or-complete () {
+  local afufun="$1"
+  local rawzle=".${afufun#*+}"
+  #REMOVE BUFFER_CUR LATER
+  local code=${"$(<=(cat <<"EOT"
+  $afufun () {
+    zle $rawzle
+    region_highlight=("${#buffer_cur} ${#BUFFER} fg=white")
+    return 0
+  }
+  zle -N $afufun
+EOT
+  ))"}
+  eval "${${code//\$afufun/$afufun}//\$rawzle/$rawzle}"
 }
 afu-register-zle-accept-line afu+accept-line
-afu-register-zle-accept-line accept-line-and-down-history
-afu-register-zle-accept-line accept-and-hold
+afu-register-zle-expand-or-complete afu+expand-or-complete
+#afu-register-zle-accept-line accept-line-and-down-history
+#afu-register-zle-accept-line accept-and-hold
 
 # Entry point.
 auto-fu-init () {
+    zle_highlight=(default:fg=green)
   local auto_fu_init_p=1
   local ps
   {
@@ -106,6 +127,7 @@ zle -N auto-fu-init
 #CRITICAL
 afu-recursive-edit-and-accept () {
   local -a __accepted
+    region_highlight=("${#buffer_cur} ${#BUFFER} fg=white")
   zle recursive-edit -K afu || { zle -R ''; zle send-break; return }
   [[ -n ${__accepted} ]] &&
   (( ${#${(M)afu_accept_lines:#${__accepted[1]}}} > 1 )) &&
@@ -114,7 +136,7 @@ afu-recursive-edit-and-accept () {
 
 #Aesthetic clear buffer
 afu-clearing-maybe () {
-  region_highlight=()
+  #region_highlight=()
   if ((afu_in_p == 1)); then
     [[ "$BUFFER" != "$buffer_new" ]] || ((CURSOR != cursor_cur)) &&
     { afu_in_p=0 }
@@ -130,6 +152,7 @@ with-afu () {
     ((afu_in_p == 1)) && { afu_in_p=0; BUFFER="$buffer_cur" }
     zle $zlefun && {
         setopt localoptions extendedglob no_banghist
+        #region_highlight=("P0 ${#buffer_cur} fg=green")
         local es ds
         zstyle -a ':auto-fu:var' enable es; (( ${#es} == 0 )) && es=(all)
         if [[ -n ${(M)es:#(#i)all} ]]; then
@@ -172,6 +195,7 @@ auto-fu () {
     cursor_new="$CURSOR"
     buffer_new="$BUFFER"
 
+
     if [[ "$buffer_cur[1,cursor_cur]" == "$buffer_new[1,cursor_cur]" ]]; then
     CURSOR="$cursor_cur"
     {
@@ -181,7 +205,7 @@ auto-fu () {
       [[ -z ${hiv} ]] || {
         local -i end=$cursor_new
         [[ $BUFFER[$cursor_new] == ' ' ]] && (( end-- ))
-        region_highlight=("$CURSOR $end ${hiv}")
+        #region_highlight=("$CURSOR $end ${hiv}")
       }
     }
 
@@ -214,7 +238,7 @@ with-afu-compfuncs () {
 
 #CRITICAL Makes it less annoying
 afu-comppost () {
-  ((compstate[list_lines] + BUFFERLINES + 2 > LINES)) && {
+((compstate[list_lines] + 2 > LINES)) && {
     compstate[list]=''
     zle -M "$compstate[list_lines]($compstate[nmatches]) too many matches..."
   }
