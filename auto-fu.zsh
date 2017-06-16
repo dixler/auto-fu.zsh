@@ -67,7 +67,7 @@ afu-register-zle-accept-line () {
     zle $rawzle && {
       local hi
       zstyle -s ':auto-fu:highlight' input hi
-        #BUFFER="$buffer_cur"
+        BUFFER="$buffer_cur"
       #[[ -z ${hi} ]] || region_highlight=("P0 ${#BUFFER} ${hi}")
       #[[ -z ${hi} ]] || region_highlight=("P0 ${#BUFFER} bold")
     }
@@ -89,8 +89,14 @@ afu-register-zle-expand-or-complete () {
   #REMOVE BUFFER_CUR LATER
   local code=${"$(<=(cat <<"EOT"
   $afufun () {
-    zle $rawzle
     region_highlight=("${#buffer_cur} ${#BUFFER} fg=white")
+    zle $rawzle
+    if [[ $afu_one_match_p == t ]]; then
+       #echo "ONE MATCH" 
+       #BUFFER="$buffer_cur"
+       buffer_cur="$BUFFER"
+
+    fi
     return 0
   }
   zle -N $afufun
@@ -105,11 +111,11 @@ afu-register-zle-expand-or-complete afu+expand-or-complete
 
 # Entry point.
 auto-fu-init () {
-    zle_highlight=(default:fg=green)
+    zle_highlight=(default:"fg=green,bold")
   local auto_fu_init_p=1
   local ps
   {
-    local -a region_highlight
+    #local -a region_highlight
     local afu_in_p=0
     local afu_paused_p=0
 
@@ -127,7 +133,8 @@ zle -N auto-fu-init
 #CRITICAL
 afu-recursive-edit-and-accept () {
   local -a __accepted
-    region_highlight=("${#buffer_cur} ${#BUFFER} fg=white")
+  #TODO
+    region_highlight=("${#buffer_cur} ${#buffer_new} fg=white")
   zle recursive-edit -K afu || { zle -R ''; zle send-break; return }
   [[ -n ${__accepted} ]] &&
   (( ${#${(M)afu_accept_lines:#${__accepted[1]}}} > 1 )) &&
@@ -188,12 +195,12 @@ auto-fu-maybe () {
 
 #CRITICAL
 auto-fu () {
-    zle reset-prompt
     cursor_cur="$CURSOR"
     buffer_cur="$BUFFER"
     with-afu-completer-vars zle complete-word
     cursor_new="$CURSOR"
     buffer_new="$BUFFER"
+    region_highlight=("${#buffer_cur} ${#buffer_new} fg=white,underline")
 
 
     if [[ "$buffer_cur[1,cursor_cur]" == "$buffer_new[1,cursor_cur]" ]]; then
@@ -238,6 +245,7 @@ with-afu-compfuncs () {
 
 #CRITICAL Makes it less annoying
 afu-comppost () {
+    zle -M "$compstate[list_lines]($compstate[nmatches]) too many matches..."
 ((compstate[list_lines] + 2 > LINES)) && {
     compstate[list]=''
     zle -M "$compstate[list_lines]($compstate[nmatches]) too many matches..."
