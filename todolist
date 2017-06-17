@@ -16,3 +16,8 @@ tab completion on menucompletion
 
 using tab to select from the menu with nothing typed for that parameter doesn't allow menu selection
     fix that shit-- I think I fixed it
+well I just fixed autocompletion,
+    now it just autocompletes everything
+        wew
+            make it autocomplete on tab menu
+                don't make it autocomplete as soon as you start typing tho because you might want to make a new file with a new name that isn't autocompleted and that would be really annoying because that's really shit

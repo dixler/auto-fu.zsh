@@ -30,11 +30,6 @@ afu-install () {
   { "$@" }
   bindkey -M afu "^I" afu+expand-or-complete
   bindkey -M afu "^M" afu+accept-line
-  bindkey -M afu "^J" afu+accept-line
-  bindkey -M afu "^O" delta+accept-line-and-down-history
-  bindkey -M afu "^[a" accept-and-hold
-  bindkey -M afu "^X^[" vi-cmd-mode
-  bindkey -N afu-vicmd vicmd
 }
 
 afu-install afu-keymap+widget
