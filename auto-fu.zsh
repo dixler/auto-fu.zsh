@@ -32,6 +32,9 @@ afu-register-zle-accept-line () {
   local rawzle=".${afufun#*+}"
   local code=${"$(<=(cat <<"EOT"
   $afufun () {
+    if (( inTyping == 1 )); then
+        BUFFER="$buffer_cur"
+    fi
     __accepted=($WIDGET ${=NUMERIC:+-n $NUMERIC} "$@")
     zle $rawzle && {
       local hi
@@ -56,6 +59,7 @@ afu-register-zle-expand-or-complete () {
     if [[ $afu_one_match_p != t ]]; then
         buffer_cur="$BUFFER"
     fi
+    inTyping=0
     zle $rawzle
     return 0
   }
@@ -164,6 +168,7 @@ auto-fu () {
       }
     }
 
+    inTyping=1
     if [[ "$buffer_cur" != "$buffer_new" ]] || ((cursor_cur != cursor_new))
     then afu_in_p=1; {
       local BUFFER="$buffer_cur"
