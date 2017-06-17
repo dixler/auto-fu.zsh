@@ -9,3 +9,10 @@ maybe get that underline autocompletion going on
 mod grml so that the auto completion doesn't always happen because it's inconsistent
 make autocompletion stop fucking with people that don't actually want to auto complete
 mv file.local file.loc is practically impossible
+
+
+tab completion on menucompletion
+    show the underline prompt on incomplete
+
+using tab to select from the menu with nothing typed for that parameter doesn't allow menu selection
+    fix that shit-- I think I fixed it
