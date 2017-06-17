@@ -19,17 +19,53 @@ autoload +X keymap+widget
 }
 
 afu-install () {
-    zstyle -t ':auto-fu:var' misc-installed-p || {
-        zmodload zsh/parameter 2>/dev/null || {
-            echo 'auto-fu:zmodload error. exiting.' >&2; exit -1
-    }
-  } always {
-    zstyle ':auto-fu:var' misc-installed-p yes
-  }
   bindkey -N afu emacs
   { "$@" }
+  bindkey -M afu "^I" afu+expand-or-complete
+  bindkey -M afu "^M" afu+accept-line
 }
+
 afu-install afu-keymap+widget
+
+afu-register-zle-accept-line () {
+  local afufun="$1"
+  local rawzle=".${afufun#*+}"
+  local code=${"$(<=(cat <<"EOT"
+  $afufun () {
+    __accepted=($WIDGET ${=NUMERIC:+-n $NUMERIC} "$@")
+    zle $rawzle && {
+      local hi
+    }
+    zstyle -T ':auto-fu:var' postdisplay/clearp && POSTDISPLAY=''
+    return 0
+  }
+  zle -N $afufun
+EOT
+  ))"}
+  eval "${${code//\$afufun/$afufun}//\$rawzle/$rawzle}"
+  afu_accept_lines+=$afufun
+    BUFFER=''
+}
+
+#irrelevant solely for printing lines
+afu-register-zle-expand-or-complete () {
+  local afufun="$1"
+  local rawzle=".${afufun#*+}"
+  local code=${"$(<=(cat <<"EOT"
+  $afufun () {
+    if [[ $afu_one_match_p != t ]]; then
+        buffer_cur="$BUFFER"
+    fi
+    zle $rawzle
+    return 0
+  }
+  zle -N $afufun
+EOT
+  ))"}
+  eval "${${code//\$afufun/$afufun}//\$rawzle/$rawzle}"
+}
+afu-register-zle-accept-line afu+accept-line
+afu-register-zle-expand-or-complete afu+expand-or-complete
 
 # Entry point.
 auto-fu-init () {
