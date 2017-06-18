@@ -84,7 +84,7 @@ afu-recursive-edit-and-accept () {
   zle recursive-edit -K afu || { zle -R ''; zle send-break; return }
   [[ -n ${__accepted} ]] &&
   (( ${#${(M)afu_accept_lines:#${__accepted[1]}}} > 1 )) &&
-  { zle "${__accepted[@]}"} || { zle accept-line; buffer_cur='' }
+  { zle "${__accepted[@]}"} || { zle accept-line; BUFFER='' }
       
 }
 
@@ -103,7 +103,6 @@ with-afu () {
     ((afu_in_p == 1)) && { afu_in_p=0; BUFFER="$buffer_cur" }
     zle $zlefun && {
       setopt localoptions extendedglob no_banghist
-      #region_highlight=("P0 ${#buffer_cur} fg=green")
       local es ds
       zstyle -a ':auto-fu:var' enable es; (( ${#es} == 0 )) && es=(all)
       if [[ -n ${(M)es:#(#i)all} ]]; then
