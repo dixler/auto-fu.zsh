@@ -34,6 +34,7 @@ afu-register-zle-accept-line () {
       local hi
     }
     zstyle -T ':auto-fu:var' postdisplay/clearp && POSTDISPLAY=''
+    buffer_cur=""
     return 0
   }
   zle -N $afufun
