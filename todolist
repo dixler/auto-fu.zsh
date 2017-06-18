@@ -21,4 +21,6 @@ well I just fixed autocompletion,
         wew
             make it autocomplete on tab menu
                 don't make it autocomplete as soon as you start typing tho because you might want to make a new file with a new name that isn't autocompleted and that would be really annoying because that's really shit
-fix history completion
+fix history completion-- done
+
+on enter don't repeat last command
