@@ -5,27 +5,22 @@ afu_zles=( \
   kill-whole-line kill-word magic-space yank \
 )
 
-autoload +X keymap+widget
-() {
-  setopt localoptions extendedglob no_shwordsplit
-  local code=${(S)${functions[keymap+widget]/for w in *
-	do
-/for w in $afu_zles
-  do
-  }/(#b)(\$w-by-keymap \(\) \{*\})/
-  eval \${\${\${\"\$(echo \'$match\')\"}/\\\$w/\$w}//\\\$WIDGET/\$w}
-  }
-  eval "function afu-keymap+widget () { $code }"
-}
-
 afu-install () {
   bindkey -N afu emacs
-  { "$@" }
+  #{ "$@" }
   bindkey -M afu "^I" afu+expand-or-complete
   bindkey -M afu "^M" afu+accept-line
+
+  #fix better history autocompletion
+  autoload -U up-line-or-beginning-search
+  autoload -U down-line-or-beginning-search
+  zle -N up-line-or-beginning-search
+  zle -N down-line-or-beginning-search
+  bindkey -M afu "^[[A" up-line-or-beginning-search # Up
+  bindkey -M afu "^[[B" down-line-or-beginning-search # Down
 }
 
-afu-install afu-keymap+widget
+afu-install #afu-keymap+widget
 
 afu-register-zle-accept-line () {
   local afufun="$1"
@@ -47,7 +42,7 @@ EOT
   ))"}
   eval "${${code//\$afufun/$afufun}//\$rawzle/$rawzle}"
   afu_accept_lines+=$afufun
-    BUFFER=''
+  BUFFER=''
 }
 
 #irrelevant solely for printing lines
@@ -73,7 +68,7 @@ afu-register-zle-expand-or-complete afu+expand-or-complete
 
 # Entry point.
 auto-fu-init () {
-    zle_highlight=(default:"fg=green,bold")
+    zle_highlight=(default:"fg=white")
   local auto_fu_init_p=1
   local ps
   {
@@ -101,7 +96,6 @@ afu-recursive-edit-and-accept () {
 }
 
 afu-clearing-maybe () {
-  #region_highlight=()
   if ((afu_in_p == 1)); then
     [[ "$BUFFER" != "$buffer_new" ]] || ((CURSOR != cursor_cur)) &&
     { afu_in_p=0 }
@@ -154,7 +148,7 @@ auto-fu () {
     with-afu-completer-vars zle complete-word
     cursor_new="$CURSOR"
     buffer_new="$BUFFER"
-    region_highlight=("${#buffer_cur} ${#buffer_new} fg=242,underline")
+    region_highlight=("${#buffer_cur} ${#buffer_new} fg=240,underline")
 
     if [[ "$buffer_cur[1,cursor_cur]" == "$buffer_new[1,cursor_cur]" ]]; then
     CURSOR="$cursor_cur"
