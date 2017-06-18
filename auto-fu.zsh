@@ -34,7 +34,6 @@ afu-register-zle-accept-line () {
       local hi
     }
     zstyle -T ':auto-fu:var' postdisplay/clearp && POSTDISPLAY=''
-    buffer_cur=""
     return 0
   }
   zle -N $afufun
@@ -85,7 +84,7 @@ afu-recursive-edit-and-accept () {
   zle recursive-edit -K afu || { zle -R ''; zle send-break; return }
   [[ -n ${__accepted} ]] &&
   (( ${#${(M)afu_accept_lines:#${__accepted[1]}}} > 1 )) &&
-  { zle "${__accepted[@]}"} || { zle accept-line }
+  { zle "${__accepted[@]}"} || { zle accept-line; buffer_cur='' }
       
 }
 
