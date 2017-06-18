@@ -24,3 +24,6 @@ well I just fixed autocompletion,
 fix history completion-- done
 
 on enter don't repeat last command
+copy paste seems to be pretty broken
+fix the stupid wildcard so it doesn't autocomplete inline
+    gotta preserve default/consistent behavior
