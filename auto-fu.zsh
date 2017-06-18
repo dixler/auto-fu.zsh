@@ -84,7 +84,7 @@ afu-recursive-edit-and-accept () {
   zle recursive-edit -K afu || { zle -R ''; zle send-break; return }
   [[ -n ${__accepted} ]] &&
   (( ${#${(M)afu_accept_lines:#${__accepted[1]}}} > 1 )) &&
-  { zle "${__accepted[@]}"} || { zle accept-line; BUFFER='' }
+  { zle "${__accepted[@]}"} || { zle accept-line }
       
 }
 

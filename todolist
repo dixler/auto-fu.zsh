@@ -3,27 +3,28 @@ spend hours fixing things that I notice are:
     2) inconvenient
     3) possibly license it so that the breakage isn't severe enough to get me sued for someone "rm -rf /"-ing
 
-make man autocompletion suck as much/conflict
-make listing not take up the entire screen because it's annoying
-maybe get that underline autocompletion going on
-mod grml so that the auto completion doesn't always happen because it's inconsistent
-make autocompletion stop fucking with people that don't actually want to auto complete
-mv file.local file.loc is practically impossible
+[DONE] make man autocompletion suck as much/conflict
+[DONE] maybe get that underline autocompletion going on
+[DONE] mod grml so that the auto completion doesn't always happen because it's inconsistent make autocompletion stop fucking with people that don't actually want to auto complete i.e. mv file.local file.loc is practically impossible 
+[DONE] tab completion on menucompletion; show the underline prompt on incomplete 
+[DONE] using tab to select from the menu with nothing typed for that parameter doesn't allow menu selection fix that shit
+[DONE] well I just fixed autocompletion, now it just autocompletes everything wew make it autocomplete on tab menu don't make it autocomplete as soon as you start typing tho because you might want to make a new file with a new name that isn't autocompleted and that would be really annoying because that's really shit --done (excpt wild card has weird default autocompletion ask abou
+[DONE] fix history completion 
+[DONE] on enter don't repeat last command
+[DONE] [DONE] make listing not take up the entire screen because 
+[DONE] copy paste seems to be pretty broken
+[DONE] fix the stupid wildcard so it doesn't autocomplete; gotta preserve default/consistent behavior
 
-
-tab completion on menucompletion
-    show the underline prompt on incomplete
-
-using tab to select from the menu with nothing typed for that parameter doesn't allow menu selection
-    fix that shit-- I think I fixed it
-well I just fixed autocompletion,
-    now it just autocompletes everything
-        wew
-            make it autocomplete on tab menu
-                don't make it autocomplete as soon as you start typing tho because you might want to make a new file with a new name that isn't autocompleted and that would be really annoying because that's really shit
-fix history completion-- done
-
-on enter don't repeat last command-- done
-copy paste seems to be pretty broken
-fix the stupid wildcard so it doesn't autocomplete inline
-    gotta preserve default/consistent behavior
+behaviors on one file option are wonky. FIX THEM!
+remove correct behavior 
+   ie rr,
+up one doesn't auto substitute it into the line buffer for acceptance
+   example:
+      hist:
+         nvim hw1.c
+      line:
+      nvim ^UP
+      displays:   nvim hw1.c
+      on-accept:  nvim
+   tab works to complete it though
+was broken by patching enter repeating last command rolled back patch 
