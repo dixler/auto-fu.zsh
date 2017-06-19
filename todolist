@@ -16,15 +16,18 @@ spend hours fixing things that I notice are:
 [DONE] fix the stupid wildcard so it doesn't autocomplete; gotta preserve default/consistent behavior
 
 behaviors on one file option are wonky. FIX THEM!
-remove correct behavior 
+[DONE] remove correct behavior 
    ie rr,
-up one doesn't auto substitute it into the line buffer for acceptance
-   example:
-      hist:
-         nvim hw1.c
-      line:
-      nvim ^UP
-      displays:   nvim hw1.c
-      on-accept:  nvim
-   tab works to complete it though
-was broken by patching enter repeating last command rolled back patch 
+HISTORY
+   up one doesn't auto substitute it into the line buffer for acceptance
+      example:
+         hist:
+            nvim hw1.c
+         line:
+         nvim ^UP
+         displays:   nvim hw1.c
+         on-accept:  nvim
+      tab works to complete it though
+      was broken by patching enter repeating last command rolled back patch 
+I broke shift tab along the way
+

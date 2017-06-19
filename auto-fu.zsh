@@ -20,6 +20,27 @@ afu-install () {
   bindkey -M afu "^[[B" down-line-or-beginning-search # Down
 }
 
+afu-register-zle-accept-line () {
+  local afufun="$1"
+  local rawzle=".${afufun#*+}"
+  local code=${"$(<=(cat <<"EOT"
+  $afufun () {
+    if (( inTyping == 1 )); then
+        BUFFER="$buffer_cur"
+    fi
+    __accepted=($WIDGET ${=NUMERIC:+-n $NUMERIC} "$@")
+    zle $rawzle && {
+      local hi
+    }
+    zstyle -T ':auto-fu:var' postdisplay/clearp && POSTDISPLAY=''
+    return 0
+  }
+  zle -N $afufun
+EOT
+  ))"}
+  eval "${${code//\$afufun/$afufun}//\$rawzle/$rawzle}"
+  afu_accept_lines+=$afufun
+}
 
 afu-register-zle-accept-line () {
   local afufun="$1"
@@ -102,7 +123,7 @@ with-afu () {
     afu-clearing-maybe
     ((afu_in_p == 1)) && { afu_in_p=0; BUFFER="$buffer_cur" }
     zle $zlefun && {
-      setopt localoptions extendedglob no_banghist
+      #setopt localoptions extendedglob no_banghist
       local es ds
       zstyle -a ':auto-fu:var' enable es; (( ${#es} == 0 )) && es=(all)
       if [[ -n ${(M)es:#(#i)all} ]]; then
