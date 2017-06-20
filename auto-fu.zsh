@@ -25,29 +25,7 @@ afu-register-zle-accept-line () {
   local rawzle=".${afufun#*+}"
   local code=${"$(<=(cat <<"EOT"
   $afufun () {
-    if (( afu_in_p == 0 )); then
-        BUFFER="$buffer_cur"
-    fi
-    __accepted=($WIDGET ${=NUMERIC:+-n $NUMERIC} "$@")
-    zle $rawzle && {
-      local hi
-    }
-    zstyle -T ':auto-fu:var' postdisplay/clearp && POSTDISPLAY=''
-    return 0
-  }
-  zle -N $afufun
-EOT
-  ))"}
-  eval "${${code//\$afufun/$afufun}//\$rawzle/$rawzle}"
-  afu_accept_lines+=$afufun
-}
-
-afu-register-zle-accept-line () {
-  local afufun="$1"
-  local rawzle=".${afufun#*+}"
-  local code=${"$(<=(cat <<"EOT"
-  $afufun () {
-    if (( afu_in_p == 1 )); then
+    if (( isTyping == 1 )); then
         BUFFER="$buffer_cur"
     fi
     __accepted=($WIDGET ${=NUMERIC:+-n $NUMERIC} "$@")
@@ -69,7 +47,7 @@ afu-register-zle-expand-or-complete () {
   local rawzle=".${afufun#*+}"
   local code=${"$(<=(cat <<"EOT"
   $afufun () {
-    afu_in_p=0
+      isTyping=0
     zle $rawzle
     return 0
   }
@@ -152,6 +130,7 @@ auto-fu () {
     if [[ "$buffer_cur[1,cursor_cur]" == "$buffer_new[1,cursor_cur]" ]]; then
     CURSOR="$cursor_cur"
 
+     isTyping=1
     if [[ "$buffer_cur" != "$buffer_new" ]] || ((cursor_cur != cursor_new))
     then afu_in_p=1; {
       local BUFFER="$buffer_cur"
