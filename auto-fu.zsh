@@ -67,11 +67,23 @@ auto-fu-init () {
     local afu_paused_p=0
     zstyle -s ':auto-fu:var' postdisplay ps
     [[ -z ${ps} ]] || POSTDISPLAY="$ps"
+    afu-recursive-edit-and-accept
     zle -I
   } always {
     [[ -z ${ps} ]] || POSTDISPLAY=''
   }
 }
+
+afu-recursive-edit-and-accept () {
+  local -a __accepted
+  region_highlight=("${#buffer_cur} ${#buffer_new} fg=white")
+  zle recursive-edit -K afu || { zle -R ''; zle send-break; return }
+  [[ -n ${__accepted} ]] &&
+  (( ${#${(M)afu_accept_lines:#${__accepted[1]}}} > 1 )) &&
+  { zle "${__accepted[@]}"} || { zle accept-line }
+      
+}
+
 
 #replaces character buffer to right with typing letter
 afu-clearing-maybe () {
