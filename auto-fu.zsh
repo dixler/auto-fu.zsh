@@ -81,7 +81,7 @@ EOT
 
 # Entry point.
 auto-fu-init () {
-  zle_highlight=(default:"fg=white")
+  zle_highlight=(default:"fg=green,bold")
   local auto_fu_init_p=1
   local ps
   {
