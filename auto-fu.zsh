@@ -25,7 +25,7 @@ afu-register-zle-accept-line () {
   local rawzle=".${afufun#*+}"
   local code=${"$(<=(cat <<"EOT"
   $afufun () {
-    if (( inTyping == 1 )); then
+    if (( afu_in_p == 0 )); then
         BUFFER="$buffer_cur"
     fi
     __accepted=($WIDGET ${=NUMERIC:+-n $NUMERIC} "$@")
@@ -47,7 +47,7 @@ afu-register-zle-accept-line () {
   local rawzle=".${afufun#*+}"
   local code=${"$(<=(cat <<"EOT"
   $afufun () {
-    if (( inTyping == 1 )); then
+    if (( afu_in_p == 1 )); then
         BUFFER="$buffer_cur"
     fi
     __accepted=($WIDGET ${=NUMERIC:+-n $NUMERIC} "$@")
@@ -69,10 +69,7 @@ afu-register-zle-expand-or-complete () {
   local rawzle=".${afufun#*+}"
   local code=${"$(<=(cat <<"EOT"
   $afufun () {
-    if [[ $afu_one_match_p != t ]]; then
-      buffer_cur="$BUFFER"
-    fi
-    inTyping=0
+    afu_in_p=0
     zle $rawzle
     return 0
   }
@@ -92,23 +89,13 @@ auto-fu-init () {
     local afu_paused_p=0
     zstyle -s ':auto-fu:var' postdisplay ps
     [[ -z ${ps} ]] || POSTDISPLAY="$ps"
-    afu-recursive-edit-and-accept
     zle -I
   } always {
     [[ -z ${ps} ]] || POSTDISPLAY=''
   }
 }
 
-afu-recursive-edit-and-accept () {
-  local -a __accepted
-  region_highlight=("${#buffer_cur} ${#buffer_new} fg=white")
-  zle recursive-edit -K afu || { zle -R ''; zle send-break; return }
-  [[ -n ${__accepted} ]] &&
-  (( ${#${(M)afu_accept_lines:#${__accepted[1]}}} > 1 )) &&
-  { zle "${__accepted[@]}"} || { zle accept-line }
-      
-}
-
+#replaces character buffer to right with typing letter
 afu-clearing-maybe () {
   if ((afu_in_p == 1)); then
     [[ "$BUFFER" != "$buffer_new" ]] || ((CURSOR != cursor_cur)) &&
@@ -164,17 +151,6 @@ auto-fu () {
 
     if [[ "$buffer_cur[1,cursor_cur]" == "$buffer_new[1,cursor_cur]" ]]; then
     CURSOR="$cursor_cur"
-    {
-      local hi hiv
-      [[ $afu_one_match_p == t ]] && hi=completion/one || hi=completion
-      zstyle -s ':auto-fu:highlight' "$hi" hiv
-      [[ -z ${hiv} ]] || {
-        local -i end=$cursor_new
-        [[ $BUFFER[$cursor_new] == ' ' ]] && (( end-- ))
-      }
-    }
-
-    inTyping=1
 
     if [[ "$buffer_cur" != "$buffer_new" ]] || ((cursor_cur != cursor_new))
     then afu_in_p=1; {
@@ -191,7 +167,6 @@ auto-fu () {
 }
 
 with-afu-completer-vars () {
-  setopt localoptions no_recexact
   local LISTMAX=999999
   with-afu-compfuncs "$@"
 }
@@ -206,8 +181,6 @@ afu-comppost () {
     compstate[list]=''
     zle -M "$compstate[list_lines]($compstate[nmatches]) too many matches..."
   }
-  typeset -g afu_one_match_p=
-  (( $compstate[nmatches] == 1 )) && afu_one_match_p=t
 }
 
 afu-install
