@@ -437,7 +437,7 @@ elif ls -G / >/dev/null 2>&1; then
     ls_options+=( -G )
 fi
 if grep --color=auto -q "a" <<< "a" >/dev/null 2>&1; then
-    grep_options+=( -n --color=auto )
+    grep_options+=( --color=auto )
 fi
 
 # utility functions
@@ -677,10 +677,12 @@ function grmlcomp () {
     (( ${+_comps} )) || return 1
 
     # allow one error for every three characters typed in approximate completer
-    zstyle ':completion:*:approximate:'    max-errors 'reply=( $((($#PREFIX+$#SUFFIX)/3 )) numeric )'
+    #zstyle ':completion:*:approximate:'    max-errors 'reply=( $((($#PREFIX+$#SUFFIX)/3 )) numeric )'
 
     # don't complete backup files as executables
-    zstyle ':completion:*:complete:-command-::commands' ignored-patterns '(aptitude-*|*\~)'
+    #zstyle ':completion:*:complete:-command-::commands' ignored-patterns 'aptitude-*|*\~)'
+
+    zstyle ':completion:*' list-dirs-first true
 
     # start menu completion only if it could find no unambiguous initial string
     zstyle ':completion:*:correct:*'       insert-unambiguous true
@@ -708,7 +710,7 @@ function grmlcomp () {
     zstyle ':completion:*:history-words'   stop yes
 
     # match uppercase from lowercase
-    zstyle ':completion:*'                 matcher-list 'm:{a-z}={A-Z}'
+    #zstyle ':completion:*'                 matcher-list "m:{[:lower:]}={[:upper:]}"
 
     # separate matches into groups
     zstyle ':completion:*:matches'         group 'yes'
@@ -716,7 +718,7 @@ function grmlcomp () {
 
     if [[ "$NOMENU" -eq 0 ]] ; then
         # if there are more than 5 options allow selecting from a menu
-        zstyle ':completion:*'               menu select=5
+        #zstyle ':completion:*'               menu select=5
     else
         # don't use any menus at all
         setopt no_auto_menu
@@ -747,7 +749,7 @@ function grmlcomp () {
 
     # define files to ignore for zcompile
     zstyle ':completion:*:*:zcompile:*'    ignored-patterns '(*~|*.zwc)'
-    zstyle ':completion:correct:'          prompt 'correct to: %e'
+    #zstyle ':completion:correct:'          prompt 'correct to: %e'
 
     # Ignore completion functions for commands you don't have:
     zstyle ':completion::(^approximate*):*:functions' ignored-patterns '_*'
@@ -781,7 +783,7 @@ function grmlcomp () {
     ## correction
     # some people don't like the automatic correction - so run 'NOCOR=1 zsh' to deactivate it
     if [[ "$NOCOR" -gt 0 ]] ; then
-        zstyle ':completion:*' completer _oldlist _expand _force_rehash _complete _files _ignored
+        zstyle ':completion:*' completer _oldlist _force_rehash _files _ignored
         setopt nocorrect
     else
         # try to be smart about when to use what completer...
@@ -789,13 +791,11 @@ function grmlcomp () {
         zstyle -e ':completion:*' completer '
             if [[ $_last_try != "$HISTNO$BUFFER$CURSOR" ]] ; then
                 _last_try="$HISTNO$BUFFER$CURSOR"
-                reply=(_complete _match _ignored _prefix _files)
+                #reply=(_oldlist _files _expand _match _ignored _prefix _complete )
+                reply=(_oldlist _expand _directory_stack _complete _files)
+
             else
-                if [[ $words[1] == (rm|mv) ]] ; then
-                    reply=(_complete _files)
-                else
-                    reply=(_oldlist _expand _force_rehash _complete _ignored _correct _approximate _files)
-                fi
+                reply=(_oldlist _expand _files _prefix)
             fi'
     fi
 
@@ -2358,8 +2358,8 @@ function prompt_grml_precmd () {
     emulate -L zsh
     local grmltheme=grml
     local -a left_items right_items
-    left_items=(rc change-root user at host path vcs percent newline)
-    right_items=(sad-smiley)
+    left_items=(rc change-root user at host path vcs newline)
+    right_items=(battery)
 
     prompt_grml_precmd_worker
 }
